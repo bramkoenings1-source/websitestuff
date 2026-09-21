@@ -1,25 +1,35 @@
-name: Sync archive.org catalog
+name: Sync Audio Catalog
 
 on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch: {}
-
-permissions:
-  contents: write
+    - cron: '0 * * * *' # Runs every hour
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node build-catalog.js
-      - run: |
+
+      - name: Run build catalog script
+        run: node build-catalog.js
+
+      - name: Commit and push catalog
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add catalog.json
           git diff --staged --quiet || git commit -m "Sync catalog from archive.org"
+          git pull --rebase origin main
           git push
