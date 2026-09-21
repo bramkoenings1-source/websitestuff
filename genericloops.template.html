@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GENERIC ENTERPRISES INC. - Audio Asset Repository</title>
+    <style>
+        body {
+            background-color: #c0c0c0;
+            color: #000000;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            margin: 20px;
+            padding-bottom: 60px; /* leave room for sticky player */
+        }
+        .header {
+            background-color: #000080;
+            color: #ffffff;
+            padding: 4px 8px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .container {
+            border: 2px solid;
+            border-color: #dfdfdf #808080 #808080 #dfdfdf;
+            background-color: #ffffff;
+            padding: 10px;
+            max-width: 760px;
+        }
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .toolbar input[type="text"] {
+            flex: 1;
+            border: 2px solid;
+            border-color: #808080 #dfdfdf #dfdfdf #808080;
+            padding: 3px 5px;
+            font-family: inherit;
+            font-size: 12px;
+            background: #ffffff;
+        }
+        .toolbar .result-count {
+            font-size: 11px;
+            color: #404040;
+            white-space: nowrap;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+        th, td {
+            border: 1px solid #808080;
+            padding: 4px 8px;
+            text-align: left;
+            font-size: 12px;
+        }
+        th {
+            background-color: #c0c0c0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        th:hover {
+            background-color: #d4d4d4;
+        }
+        th .sort-indicator {
+            font-size: 9px;
+            margin-left: 3px;
+            color: #404040;
+        }
+        tr:nth-child(even) {
+            background-color: #f0f0f0;
+        }
+        tr.playing-row {
+            background-color: #dbe8ff !important;
+        }
+        td.num-cell {
+            text-align: right;
+            font-family: monospace;
+        }
+        .preview-btn {
+            font-family: inherit;
+            font-size: 11px;
+            padding: 1px 6px;
+            border: 1px solid;
+            border-color: #dfdfdf #808080 #808080 #dfdfdf;
+            background: #c0c0c0;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .preview-btn:active {
+            border-color: #808080 #dfdfdf #dfdfdf #808080;
+        }
+        .preview-btn.is-playing {
+            background: #000080;
+            color: #ffffff;
+        }
+        .actions-bar {
+            margin-top: 10px;
+            background-color: #e0e0e0;
+            border: 1px solid #808080;
+            padding: 6px;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 10px;
+            color: #404040;
+            border-top: 1px solid #808080;
+            padding-top: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .counter-badge {
+            background-color: #000000;
+            color: #00ff00;
+            font-family: monospace;
+            padding: 2px 6px;
+            font-weight: bold;
+        }
+        .analysis-note {
+            font-size: 10px;
+            color: #606060;
+            margin-top: 6px;
+        }
+
+        /* sticky player */
+        #stickyPlayer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #c0c0c0;
+            border-top: 2px solid;
+            border-color: #dfdfdf #808080 #808080 #dfdfdf;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            z-index: 50;
+        }
+        #stickyPlayer .np-label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        #stickyPlayer #npFilename {
+            font-family: monospace;
+            background: #000000;
+            color: #00ff00;
+            padding: 2px 6px;
+            min-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #stickyPlayer audio {
+            flex: 1;
+            height: 28px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <span>GENERIC ENTERPRISES, INC. // INTERNAL FILE REPOSITORY (AUDIO_DIV)</span>
+        <span>ACCESS ID: #8849-C</span>
+    </div>
+
+    <p><strong>Notice:</strong> Select desired deliverables below to compile a customized distribution bundle.</p>
+
+    <div class="toolbar">
+        <input type="text" id="searchBox" placeholder="Search asset name..." oninput="renderTable()">
+        <span class="result-count" id="resultCount"></span>
+    </div>
+    <div class="toolbar" style="margin-top: -4px;">
+        <span class="analysis-note" id="syncStatus"><!--__SYNC_NOTE__--></span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30px; text-align: center;"><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+                <th onclick="setSort('name')">File Name<span class="sort-indicator" id="sort-name"></span></th>
+                <th onclick="setSort('format')">Format<span class="sort-indicator" id="sort-format"></span></th>
+                <th onclick="setSort('sizeBytes')">Size<span class="sort-indicator" id="sort-sizeBytes"></span></th>
+                <th onclick="setSort('duration')">Length<span class="sort-indicator" id="sort-duration"></span></th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="fileTable"></tbody>
+    </table>
+
+    <p class="analysis-note">Length is detected automatically in your browser and cached locally.</p>
+
+    <div class="actions-bar">
+        <button onclick="downloadSelected()">DOWNLOAD SELECTED ASSET BUNDLE</button>
+    </div>
+
+    <div class="footer">
+        <div>System Status: ONLINE &nbsp;|&nbsp; Server: AMS-STORAGE-04</div>
+        <div>TOTAL DEPLOYMENTS: <span id="downloadCount" class="counter-badge">80085</span></div>
+    </div>
+</div>
+
+<div id="stickyPlayer">
+    <span class="np-label">NOW PLAYING:</span>
+    <span id="npFilename">— NO ASSET LOADED —</span>
+    <audio id="playerAudio" controls></audio>
+</div>
+
+<script>
+    // This list is generated automatically at deploy time from the
+    // bramkoenings1@gmail.com archive.org account. Do not edit by hand —
+    // it gets overwritten on the next sync.
+    let FILES = /*__FILES_JSON__*/[];
+
+    // ---- state ----
+    let sortKey = null;
+    let sortDir = 1; // 1 asc, -1 desc
+    const analysisCache = loadCache();
+    let currentlyPlayingUrl = null;
+
+    function loadCache() {
+        try {
+            return JSON.parse(localStorage.getItem('generic_loop_analysis_cache') || '{}');
+        } catch (e) {
+            return {};
+        }
+    }
+    function saveCache() {
+        try {
+            localStorage.setItem('generic_loop_analysis_cache', JSON.stringify(analysisCache));
+        } catch (e) { /* ignore quota errors */ }
+    }
+
+    function formatSize(bytes) {
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+    function formatDuration(sec) {
+        if (sec == null) return '…';
+        const m = Math.floor(sec / 60);
+        const s = Math.round(sec % 60).toString().padStart(2, '0');
+        return m + ':' + s;
+    }
+
+    function setSort(key) {
+        if (sortKey === key) {
+            sortDir *= -1;
+        } else {
+            sortKey = key;
+            sortDir = 1;
+        }
+        renderTable();
+    }
+
+    function getSortValue(f, key) {
+        if (key === 'duration') return f.duration == null ? Infinity : f.duration;
+        if (key === 'name') return f.name.toLowerCase();
+        if (key === 'format') return f.format.toLowerCase();
+        return f[key];
+    }
+
+    function renderTable() {
+        const query = document.getElementById('searchBox').value.trim().toLowerCase();
+        let rows = FILES.filter(f => f.name.toLowerCase().includes(query));
+
+        if (sortKey) {
+            rows = rows.slice().sort((a, b) => {
+                const va = getSortValue(a, sortKey);
+                const vb = getSortValue(b, sortKey);
+                if (va < vb) return -1 * sortDir;
+                if (va > vb) return 1 * sortDir;
+                return 0;
+            });
+        }
+
+        document.getElementById('resultCount').textContent = rows.length + ' / ' + FILES.length + ' assets';
+
+        ['name', 'format', 'sizeBytes', 'duration'].forEach(k => {
+            const el = document.getElementById('sort-' + k);
+            el.textContent = (sortKey === k) ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
+        });
+
+        const tbody = document.getElementById('fileTable');
+        tbody.innerHTML = '';
+        rows.forEach(f => {
+            const tr = document.createElement('tr');
+            if (f.url === currentlyPlayingUrl) tr.classList.add('playing-row');
+
+            tr.innerHTML = `
+                <td style="text-align: center;"><input type="checkbox" class="file-select" data-name="${f.name}" data-url="${f.url}"></td>
+                <td>${f.name}</td>
+                <td>${f.format}</td>
+                <td class="num-cell">${formatSize(f.sizeBytes)}</td>
+                <td class="num-cell" data-role="duration">${formatDuration(f.duration)}</td>
+                <td>
+                    <button class="preview-btn ${f.url === currentlyPlayingUrl ? 'is-playing' : ''}" onclick="previewTrack('${f.url}', '${f.name.replace(/'/g, "\\'")}')">${f.url === currentlyPlayingUrl ? '■ Playing' : '► Preview'}</button>
+                    <a href="${f.url}" target="_blank" onclick="trackDownload()">Download</a>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function previewTrack(url, name) {
+        const player = document.getElementById('playerAudio');
+        currentlyPlayingUrl = url;
+        document.getElementById('npFilename').textContent = name.toUpperCase();
+        player.src = url;
+        player.play().catch(() => { /* autoplay may be blocked until user gesture, that's fine, controls still work */ });
+        renderTable();
+    }
+
+    document.getElementById('playerAudio').addEventListener('ended', () => {
+        currentlyPlayingUrl = null;
+        renderTable();
+    });
+
+    // ---- download counter (unchanged behavior) ----
+    let currentCount = parseInt(localStorage.getItem('generic_loop_download_count') || '80085');
+    document.getElementById('downloadCount').innerText = String(currentCount).padStart(5, '0');
+
+    function trackDownload() {
+        currentCount++;
+        localStorage.setItem('generic_loop_download_count', currentCount);
+        document.getElementById('downloadCount').innerText = String(currentCount).padStart(5, '0');
+    }
+
+    function toggleAll(source) {
+        const checkboxes = document.getElementsByClassName('file-select');
+        for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = source.checked;
+    }
+
+    function downloadSelected() {
+        const checkboxes = document.getElementsByClassName('file-select');
+        let count = 0;
+        for (let i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                count++;
+                window.open(checkboxes[i].getAttribute('data-url'), '_blank');
+            }
+        }
+        if (count === 0) {
+            alert("Error 404: No corporate assets selected for compilation.");
+        } else {
+            currentCount += count;
+            localStorage.setItem('generic_loop_download_count', currentCount);
+            document.getElementById('downloadCount').innerText = String(currentCount).padStart(5, '0');
+        }
+    }
+
+    // ---- duration: uses an <audio> element's metadata, which Neocities' CSP allows
+    // (media-src is permissive even though connect-src/fetch to other domains is not) ----
+    function analyzeAll() {
+        FILES.forEach((f, i) => {
+            const cached = analysisCache[f.url];
+            if (cached && cached.duration != null) {
+                f.duration = cached.duration;
+                return;
+            }
+            setTimeout(() => analyzeOne(f), i * 150);
+        });
+        renderTable();
+    }
+
+    function analyzeOne(f) {
+        const probe = new Audio();
+        probe.preload = 'metadata';
+        probe.src = f.url;
+        probe.addEventListener('loadedmetadata', () => {
+            f.duration = probe.duration;
+            analysisCache[f.url] = { duration: probe.duration };
+            saveCache();
+            renderTable();
+        });
+        probe.addEventListener('error', () => {
+            f.duration = null;
+            renderTable();
+        });
+    }
+
+    renderTable();
+    analyzeAll();
+</script>
+
+</body>
+</html>

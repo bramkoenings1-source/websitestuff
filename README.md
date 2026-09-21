@@ -1,12 +1,27 @@
 # genericloops-catalog
 
-Keeps a running catalog.json of every audio file uploaded to the
-bramkoenings1@gmail.com archive.org account. A scheduled GitHub Action
-re-checks archive.org every 30 minutes and commits any changes.
+Publishes genericloops as a GitHub Pages site, kept in sync with
+archive.org automatically.
 
-The genericloops.html site reads catalog.json directly from
-raw.githubusercontent.com — no proxy needed, since GitHub serves raw
-files with CORS already enabled.
+A scheduled GitHub Action (every 30 minutes, or run manually from the
+Actions tab) does the following:
 
-To force an immediate refresh after uploading a new loop: go to the
-Actions tab → "Sync archive.org catalog" → "Run workflow".
+1. Checks the bramkoenings1@gmail.com archive.org account for every
+   uploaded audio file.
+2. Bakes that list directly into a copy of genericloops.template.html.
+3. Commits the result as index.html. GitHub Pages serves it
+   automatically — no upload step, no API key needed.
+
+## One-time setup
+
+1. In this repo: Settings -> Pages -> under "Build and deployment",
+   set Source to "Deploy from a branch", Branch to `main` and folder
+   to `/ (root)`, then Save.
+2. Run the workflow once manually (Actions tab -> "Sync archive.org
+   and publish to GitHub Pages" -> Run workflow).
+3. After it finishes (green check), your site is live at
+   https://<your-username>.github.io/<this-repo-name>/
+
+After that: upload a new loop to archive.org, and within 30 minutes
+(or immediately via "Run workflow") the site updates itself. Nothing
+else to touch.
