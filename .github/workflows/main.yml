@@ -29,7 +29,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add catalog.json
           git diff --staged --quiet || git commit -m "Sync catalog from archive.org"
-          git pull --rebase origin main
           git push
