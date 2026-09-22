@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-22T06:16:45.729Z",
+  "generatedAt": "2026-09-22T06:45:30.862Z",
   "files": [
     {
       "name": "loop 11.wav",
@@ -7,20 +7,6 @@
       "format": "Audio/WAV",
       "sizeBytes": 4195882,
       "addeddate": "2026-09-21T21:12:07Z"
-    },
-    {
-      "name": "beat 3.wav",
-      "url": "https://archive.org/download/beat-3/beat%203.wav",
-      "format": "Audio/WAV",
-      "sizeBytes": 19776226,
-      "addeddate": "2026-09-21T18:42:35Z"
-    },
-    {
-      "name": "BEAT 2.wav",
-      "url": "https://archive.org/download/beat-2/BEAT%202.wav",
-      "format": "Audio/WAV",
-      "sizeBytes": 12373532,
-      "addeddate": "2026-09-21T14:01:56Z"
     },
     {
       "name": "beat 1.wav",
