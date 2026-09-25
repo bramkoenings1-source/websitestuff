@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-25T16:43:34.516Z",
+  "generatedAt": "2026-09-25T16:44:08.926Z",
   "files": [
     {
       "name": "loop 12.wav",
@@ -35,6 +35,13 @@
       "format": "Audio/WAV",
       "sizeBytes": 23731250,
       "addeddate": "2026-09-20T20:22:14Z"
+    },
+    {
+      "name": "loop 9.wav",
+      "url": "https://archive.org/download/loop-9/loop%209.wav",
+      "format": "Audio/WAV",
+      "sizeBytes": 15821246,
+      "addeddate": "2026-09-20T12:23:30Z"
     },
     {
       "name": "loop 7.wav",
